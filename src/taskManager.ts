@@ -56,3 +56,15 @@ export function markTest(id: number, status: "in-progress" | "done"): void {
   writeTasks(tasks);
   console.log(`Task marked as ${status}`);
 }
+
+export function listTasks(filter?: "todo" | "in-progress" | "done"): void {
+  const tasks = readTasks();
+  const filteredTasks = filter
+    ? tasks.filter((task) => task.status === filter)
+    : tasks;
+  filteredTasks.forEach((task) => {
+    console.log(
+      `[${task.id}] ${task.description} - ${task.status}(Created: ${task.createdAt})`
+    );
+  });
+}
