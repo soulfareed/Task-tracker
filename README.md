@@ -12,7 +12,7 @@ Running the Project
 
     node dist/cli.js <command> <arguments>
 
-Project page URL: https://github.com/soulfareed/Task-tracker
+Project page URL: https://roadmap.sh/projects/task-tracker
 
 Example of Commands
 Add a new task:
