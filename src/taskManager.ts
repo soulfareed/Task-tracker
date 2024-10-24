@@ -1,4 +1,3 @@
-// src/taskManager.ts
 import { Task } from "./models/task";
 import { readTasksFromFile, writeTasksToFile } from "./utils/fileHandler";
 
