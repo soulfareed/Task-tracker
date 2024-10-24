@@ -1,70 +1,56 @@
-import { todo } from "node:test";
+// src/taskManager.ts
 import { Task } from "./models/task";
-import { readTasks, writeTasks } from "./utils/fileHandler";
-import { read, stat } from "node:fs";
+import { readTasksFromFile, writeTasksToFile } from "./utils/fileHandler";
 
-let currentId = 1;
-function getNextId(): number {
-  const tasks = readTasks();
-  const lastTask = tasks[tasks.length - 1];
-  return lastTask ? lastTask.id + 1 : currentId;
-}
-
-export function addTask(description: string): void {
-  const tasks = readTasks();
+export const addTask = (description: string): Task => {
+  const tasks = readTasksFromFile();
   const newTask: Task = {
-    id: getNextId(),
+    id: tasks.length > 0 ? tasks[tasks.length - 1].id + 1 : 1,
     description,
     status: "todo",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
   tasks.push(newTask);
-  writeTasks(tasks);
-  console.log(`Task Added Successfully (ID: ${newTask.id}) `);
-}
+  writeTasksToFile(tasks);
+  return newTask;
+};
 
-export function updateTask(id: number, description: string): void {
-  const tasks = readTasks();
-  const task = tasks.find((task) => task.id === id);
-  if (!task) {
-    console.log(`Task not found !`);
-    return;
-  }
-  task.description = description;
-  task.updatedAt = new Date().toISOString();
-  writeTasks(tasks);
-  console.log("Task updated successfully");
-}
+export const updateTask = (id: number, description: string): boolean => {
+  const tasks = readTasksFromFile();
+  const taskIndex = tasks.findIndex((task) => task.id === id);
+  if (taskIndex === -1) return false;
 
-export function deleteTask(id: number): void {
-  let tasks = readTasks();
-  const task = tasks.filter((task) => task.id === id);
-  writeTasks(tasks);
-  console.log("Task deleted successfully.");
-}
+  tasks[taskIndex].description = description;
+  tasks[taskIndex].updatedAt = new Date().toISOString();
+  writeTasksToFile(tasks);
+  return true;
+};
 
-export function markTest(id: number, status: "in-progress" | "done"): void {
-  const tasks = readTasks();
-  const task = tasks.find((task) => task.id === id);
-  if (!task) {
-    console.error("Task not find.");
-    return;
-  }
-  task.status = status;
-  task.updatedAt = new Date().toISOString();
-  writeTasks(tasks);
-  console.log(`Task marked as ${status}`);
-}
+export const deleteTask = (id: number): boolean => {
+  const tasks = readTasksFromFile();
+  const filteredTasks = tasks.filter((task) => task.id !== id);
+  if (tasks.length === filteredTasks.length) return false;
 
-export function listTasks(filter?: "todo" | "in-progress" | "done"): void {
-  const tasks = readTasks();
-  const filteredTasks = filter
-    ? tasks.filter((task) => task.status === filter)
-    : tasks;
-  filteredTasks.forEach((task) => {
-    console.log(
-      `[${task.id}] ${task.description} - ${task.status}(Created: ${task.createdAt})`
-    );
-  });
-}
+  writeTasksToFile(filteredTasks);
+  return true;
+};
+
+export const markTask = (
+  id: number,
+  status: "in-progress" | "done"
+): boolean => {
+  const tasks = readTasksFromFile();
+  const taskIndex = tasks.findIndex((task) => task.id === id);
+  if (taskIndex === -1) return false;
+
+  tasks[taskIndex].status = status;
+  tasks[taskIndex].updatedAt = new Date().toISOString();
+  writeTasksToFile(tasks);
+  return true;
+};
+
+export const listTasks = (status?: "todo" | "in-progress" | "done"): Task[] => {
+  const tasks = readTasksFromFile();
+  return status ? tasks.filter((task) => task.status === status) : tasks;
+};

@@ -1,19 +1,20 @@
-// src/utils/fileHandler.ts
-
+import fs from "fs";
+import path from "path";
 import { Task } from "../models/task";
-import * as fs from "fs";
-import * as path from "path";
 
 const filePath = path.join(__dirname, "../../tasks.json");
 
-export function readTasks(): Task[] {
-  if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, JSON.stringify([]));
+// Read tasks from file
+export const readTasksFromFile = (): Task[] => {
+  try {
+    const data = fs.readFileSync(filePath, "utf-8");
+    return JSON.parse(data) as Task[];
+  } catch (err) {
+    return [];
   }
-  const data = fs.readFileSync(filePath, "utf-8");
-  return JSON.parse(data) as Task[];
-}
+};
 
-export function writeTasks(tasks: Task[]): void {
+// Write tasks to file
+export const writeTasksToFile = (tasks: Task[]): void => {
   fs.writeFileSync(filePath, JSON.stringify(tasks, null, 2));
-}
+};
